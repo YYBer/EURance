@@ -25,7 +25,7 @@ async function main() {
   const fetchWithPayment = wrapFetchWithPayment(fetch, client);
 
   const payload = {
-    prompt: "Write a professional product description for a MiCA-compliant AI payment platform",
+    prompt: "Write a professional product description for EURance — a MiCA-compliant AI freelancing platform where European users pay AI agents in EURD or USDC stablecoins via the x402 payment protocol on Algorand.",
     type: "copywriting",
   };
 
