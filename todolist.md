@@ -45,6 +45,13 @@
 * Verify wallet connections, EURD flow simulation, and AI task creation work in the deployed environment.
 * Prepare a public demo URL and short walkthrough for judges and hackathon participants.
 
+* [ ] **5. Cloud Development Environment**
+* Use GitHub Codespaces so no local Mac setup is required.
+* Run the Next.js frontend, backend listener, and testnet integration inside the cloud dev environment.
+* Push all changes to GitHub and deploy directly to Vercel.
+
+
+
 ---
 
 # ✨ Phase 3: Polish & Hackathon "Wow" Features (Day 3)
