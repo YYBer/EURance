@@ -38,7 +38,12 @@
 * [ ] **3. Implement Wallet Connection**
 * Integrate Pera Wallet or Defly Wallet widgets to ensure European users can easily connect and authorize EURD payments.
 
-
+* [ ] **4. Deploy Public Demo**
+* Deploy the frontend to Vercel for live testing and judging.
+* Configure environment variables and production settings.
+* Connect the frontend to the testnet backend services.
+* Verify wallet connections, EURD flow simulation, and AI task creation work in the deployed environment.
+* Prepare a public demo URL and short walkthrough for judges and hackathon participants.
 
 ---
 
