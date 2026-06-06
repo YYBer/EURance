@@ -1,0 +1,33 @@
+{
+  "name": "EURance Dev",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js Frontend",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "cd apps/web && npm install",
+  "postStartCommand": "cd apps/web && npm run dev",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "typescript.tsdk": "apps/web/node_modules/typescript/lib"
+      }
+    }
+  },
+  "remoteEnv": {
+    "NEXT_PUBLIC_ALGORAND_NETWORK": "testnet",
+    "NEXT_PUBLIC_ALGORAND_ALGOD_URL": "https://testnet-api.algonode.cloud",
+    "NEXT_PUBLIC_ALGORAND_INDEXER_URL": "https://testnet-idx.algonode.cloud"
+  }
+}
