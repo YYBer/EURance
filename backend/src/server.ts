@@ -7,7 +7,7 @@ import OpenAI from "openai";
 
 const AVM_ADDRESS   = process.env.AVM_SERVER_ADDRESS!;
 const FACILITATOR   = process.env.X402_FACILITATOR_URL!;
-const AVM_NETWORK   = "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=" as const;
+const AVM_NETWORK   = (process.env.X402_NETWORK ?? "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=") as "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=";
 
 if (!AVM_ADDRESS || !FACILITATOR) {
   console.error("❌ Missing AVM_SERVER_ADDRESS or X402_FACILITATOR_URL in .env");
