@@ -1,0 +1,1 @@
+European users who need translation, coding, or graphic design no longer need to hire real humans—they can hire an on-chain AI Agent Freelancer. Since they are based in Europe, these users prefer settling payments using compliant Euro stablecoins like EURQ or EURD.

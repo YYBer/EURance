@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+key.md
+
 
 # Dependencies
 node_modules/
@@ -33,3 +35,13 @@ Thumbs.db
 # Misc
 *.tmp
 *.cache
+
+# md 
+x402/
+algox402/
+set-up-structure.md
+skill.md
+X402net.md
+.claude/
+EURD.md
+

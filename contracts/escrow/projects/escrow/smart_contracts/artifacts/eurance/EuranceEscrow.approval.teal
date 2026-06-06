@@ -1,0 +1,881 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0 8 4
+    bytecblock 0x745f 0x00 "task_counter" 0x151f7c75 "admin" 0x6b79635f 0x01
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/eurance/contract.py:61-62
+    // # Contract admin — set to deployer; transfer to multisig/DAO later
+    // self.admin: GlobalState[arc4.Address] = GlobalState(arc4.Address(Txn.sender))
+    bytec 4 // "admin"
+    txn Sender
+    app_global_put
+    // smart_contracts/eurance/contract.py:64-65
+    // # Monotonically increasing task counter (serves as task ID)
+    // self.task_counter: GlobalState[UInt64] = GlobalState(UInt64(0))
+    bytec_2 // "task_counter"
+    intc_1 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/eurance/contract.py:40
+    // class EuranceEscrow(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@21
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x91c09459 0xd348fbb3 0x9bab0c3a 0x4e74cb8a 0x5e3be67f 0x617f1e90 0x3c3070cc 0xb3f4b06f 0xa1f66856 0xea0545de 0x80f20a5b 0xd0580031 // method "opt_in_asa(uint64)void", method "transfer_admin(address)void", method "set_kyc_status(address,bool)void", method "is_kyc_verified(address)bool", method "create_task(axfer,address)uint64", method "mark_complete(uint64)void", method "release_payment(uint64)void", method "dispute_task(uint64)void", method "admin_resolve(uint64,bool)void", method "admin_refund(uint64)void", method "get_task(uint64)(address,address,uint64,uint64,uint8,uint64)", method "get_task_count()uint64"
+    txna ApplicationArgs 0
+    match opt_in_asa transfer_admin set_kyc_status is_kyc_verified create_task mark_complete release_payment dispute_task admin_resolve admin_refund get_task get_task_count
+    err
+
+main___algopy_default_create@21:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.opt_in_asa[routing]() -> void:
+opt_in_asa:
+    // smart_contracts/eurance/contract.py:82
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/eurance/contract.py:88
+    // self._only_admin()
+    callsub _only_admin
+    // smart_contracts/eurance/contract.py:89-93
+    // itxn.AssetTransfer(
+    //     xfer_asset=asa,
+    //     asset_receiver=Global.current_application_address,
+    //     asset_amount=0,
+    // ).submit()
+    itxn_begin
+    // smart_contracts/eurance/contract.py:91
+    // asset_receiver=Global.current_application_address,
+    global CurrentApplicationAddress
+    // smart_contracts/eurance/contract.py:92
+    // asset_amount=0,
+    intc_1 // 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // smart_contracts/eurance/contract.py:89
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/eurance/contract.py:89-93
+    // itxn.AssetTransfer(
+    //     xfer_asset=asa,
+    //     asset_receiver=Global.current_application_address,
+    //     asset_amount=0,
+    // ).submit()
+    itxn_submit
+    // smart_contracts/eurance/contract.py:82
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.transfer_admin[routing]() -> void:
+transfer_admin:
+    // smart_contracts/eurance/contract.py:95
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/eurance/contract.py:98
+    // self._only_admin()
+    callsub _only_admin
+    // smart_contracts/eurance/contract.py:99
+    // self.admin.value = new_admin.copy()
+    bytec 4 // "admin"
+    swap
+    app_global_put
+    // smart_contracts/eurance/contract.py:95
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.set_kyc_status[routing]() -> void:
+set_kyc_status:
+    // smart_contracts/eurance/contract.py:105
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/eurance/contract.py:114
+    // self._only_admin()
+    callsub _only_admin
+    // smart_contracts/eurance/contract.py:115
+    // self.kyc_verified[address] = verified
+    bytec 5 // 0x6b79635f
+    uncover 2
+    concat
+    swap
+    box_put
+    // smart_contracts/eurance/contract.py:105
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.is_kyc_verified[routing]() -> void:
+is_kyc_verified:
+    // smart_contracts/eurance/contract.py:117
+    // @abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/eurance/contract.py:120
+    // if address in self.kyc_verified:
+    bytec 5 // 0x6b79635f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    bz is_kyc_verified_after_if_else@3
+    // smart_contracts/eurance/contract.py:121
+    // return self.kyc_verified[address]
+    dup
+    box_get
+    assert // check self.kyc_verified entry exists
+
+is_kyc_verified_after_inlined_smart_contracts.eurance.contract.EuranceEscrow.is_kyc_verified@4:
+    // smart_contracts/eurance/contract.py:117
+    // @abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+is_kyc_verified_after_if_else@3:
+    // smart_contracts/eurance/contract.py:122
+    // return arc4.Bool(False)
+    bytec_1 // 0x00
+    // smart_contracts/eurance/contract.py:117
+    // @abimethod(readonly=True)
+    b is_kyc_verified_after_inlined_smart_contracts.eurance.contract.EuranceEscrow.is_kyc_verified@4
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.create_task[routing]() -> void:
+create_task:
+    // smart_contracts/eurance/contract.py:128
+    // @abimethod
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_3 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/eurance/contract.py:313
+    // assert address in self.kyc_verified, "Wallet not KYC-verified (MiCA)"
+    bytec 5 // 0x6b79635f
+    // smart_contracts/eurance/contract.py:144-145
+    // # ── MiCA compliance gate ─────────────────────────────────────────────
+    // self._require_kyc(arc4.Address(Txn.sender))
+    txn Sender
+    // smart_contracts/eurance/contract.py:313
+    // assert address in self.kyc_verified, "Wallet not KYC-verified (MiCA)"
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Wallet not KYC-verified (MiCA)
+    // smart_contracts/eurance/contract.py:314
+    // assert self.kyc_verified[address].native, "Wallet not KYC-verified (MiCA)"
+    box_get
+    pop
+    intc_1 // 0
+    getbit
+    assert // Wallet not KYC-verified (MiCA)
+    // smart_contracts/eurance/contract.py:149
+    // payment.asset_receiver == Global.current_application_address
+    dig 1
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    // smart_contracts/eurance/contract.py:147-150
+    // # ── Validate atomic-group payment ────────────────────────────────────
+    // assert (
+    //     payment.asset_receiver == Global.current_application_address
+    // ), "Stablecoin must be sent to contract"
+    assert // Stablecoin must be sent to contract
+    // smart_contracts/eurance/contract.py:151
+    // assert payment.asset_amount > UInt64(0), "Locked amount must be > 0"
+    dig 1
+    gtxns AssetAmount
+    dup
+    assert // Locked amount must be > 0
+    // smart_contracts/eurance/contract.py:152
+    // assert freelancer != arc4.Address(Txn.sender), "Client and freelancer must differ"
+    dig 1
+    txn Sender
+    !=
+    assert // Client and freelancer must differ
+    // smart_contracts/eurance/contract.py:154-155
+    // # ── Assign task ID ───────────────────────────────────────────────────
+    // task_id = self.task_counter.value
+    intc_1 // 0
+    bytec_2 // "task_counter"
+    app_global_get_ex
+    assert // check self.task_counter exists
+    // smart_contracts/eurance/contract.py:156
+    // self.task_counter.value = task_id + UInt64(1)
+    dup
+    intc_0 // 1
+    +
+    bytec_2 // "task_counter"
+    swap
+    app_global_put
+    // smart_contracts/eurance/contract.py:159
+    // client=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/eurance/contract.py:161
+    // amount=arc4.UInt64(payment.asset_amount),
+    uncover 2
+    itob
+    // smart_contracts/eurance/contract.py:162
+    // asa_id=arc4.UInt64(payment.xfer_asset.id),
+    uncover 4
+    gtxns XferAsset
+    itob
+    // smart_contracts/eurance/contract.py:164
+    // created_at=arc4.UInt64(Global.latest_timestamp),
+    global LatestTimestamp
+    itob
+    // smart_contracts/eurance/contract.py:158-165
+    // self.tasks[task_id] = TaskData(
+    //     client=arc4.Address(Txn.sender),
+    //     freelancer=freelancer.copy(),
+    //     amount=arc4.UInt64(payment.asset_amount),
+    //     asa_id=arc4.UInt64(payment.xfer_asset.id),
+    //     status=arc4.UInt8(0),  # ACTIVE
+    //     created_at=arc4.UInt64(Global.latest_timestamp),
+    // )
+    uncover 3
+    uncover 5
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    // smart_contracts/eurance/contract.py:163
+    // status=arc4.UInt8(0),  # ACTIVE
+    bytec_1 // 0x00
+    // smart_contracts/eurance/contract.py:158-165
+    // self.tasks[task_id] = TaskData(
+    //     client=arc4.Address(Txn.sender),
+    //     freelancer=freelancer.copy(),
+    //     amount=arc4.UInt64(payment.asset_amount),
+    //     asa_id=arc4.UInt64(payment.xfer_asset.id),
+    //     status=arc4.UInt8(0),  # ACTIVE
+    //     created_at=arc4.UInt64(Global.latest_timestamp),
+    // )
+    concat
+    swap
+    concat
+    // smart_contracts/eurance/contract.py:158
+    // self.tasks[task_id] = TaskData(
+    swap
+    itob
+    bytec_0 // 0x745f
+    dig 1
+    concat
+    // smart_contracts/eurance/contract.py:158-165
+    // self.tasks[task_id] = TaskData(
+    //     client=arc4.Address(Txn.sender),
+    //     freelancer=freelancer.copy(),
+    //     amount=arc4.UInt64(payment.asset_amount),
+    //     asa_id=arc4.UInt64(payment.xfer_asset.id),
+    //     status=arc4.UInt8(0),  # ACTIVE
+    //     created_at=arc4.UInt64(Global.latest_timestamp),
+    // )
+    uncover 2
+    box_put
+    // smart_contracts/eurance/contract.py:128
+    // @abimethod
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.mark_complete[routing]() -> void:
+mark_complete:
+    // smart_contracts/eurance/contract.py:169
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/eurance/contract.py:175
+    // assert task_id.native in self.tasks, "Task not found"
+    btoi
+    itob
+    bytec_0 // 0x745f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Task not found
+    // smart_contracts/eurance/contract.py:176
+    // task = self.tasks[task_id.native].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/eurance/contract.py:178
+    // assert task.status == arc4.UInt8(0), "Task must be ACTIVE"
+    dup
+    extract 80 1
+    bytec_1 // 0x00
+    b==
+    assert // Task must be ACTIVE
+    // smart_contracts/eurance/contract.py:179
+    // assert arc4.Address(Txn.sender) == task.freelancer, "Only the assigned freelancer"
+    txn Sender
+    swap
+    extract 32 32
+    ==
+    assert // Only the assigned freelancer
+    // smart_contracts/eurance/contract.py:181-182
+    // task.status = arc4.UInt8(1)  # COMPLETE
+    // self.tasks[task_id.native] = task.copy()
+    pushint 80
+    // smart_contracts/eurance/contract.py:181
+    // task.status = arc4.UInt8(1)  # COMPLETE
+    bytec 6 // 0x01
+    // smart_contracts/eurance/contract.py:181-182
+    // task.status = arc4.UInt8(1)  # COMPLETE
+    // self.tasks[task_id.native] = task.copy()
+    box_replace // on error: index out of bounds
+    // smart_contracts/eurance/contract.py:169
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.release_payment[routing]() -> void:
+release_payment:
+    // smart_contracts/eurance/contract.py:184
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/eurance/contract.py:191
+    // assert task_id.native in self.tasks, "Task not found"
+    btoi
+    itob
+    bytec_0 // 0x745f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Task not found
+    // smart_contracts/eurance/contract.py:192
+    // task = self.tasks[task_id.native].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/eurance/contract.py:194
+    // assert task.status == arc4.UInt8(1), "Task must be COMPLETE"
+    dup
+    extract 80 1
+    bytec 6 // 0x01
+    b==
+    assert // Task must be COMPLETE
+    // smart_contracts/eurance/contract.py:195
+    // assert arc4.Address(Txn.sender) == task.client, "Only the client can release"
+    txn Sender
+    dig 1
+    extract 0 32
+    ==
+    assert // Only the client can release
+    // smart_contracts/eurance/contract.py:197-201
+    // itxn.AssetTransfer(
+    //     xfer_asset=Asset(task.asa_id.native),
+    //     asset_receiver=task.freelancer.native,
+    //     asset_amount=task.amount.native,
+    // ).submit()
+    itxn_begin
+    // smart_contracts/eurance/contract.py:198
+    // xfer_asset=Asset(task.asa_id.native),
+    dup
+    pushint 72
+    extract_uint64
+    // smart_contracts/eurance/contract.py:199
+    // asset_receiver=task.freelancer.native,
+    dig 1
+    extract 32 32
+    // smart_contracts/eurance/contract.py:200
+    // asset_amount=task.amount.native,
+    uncover 2
+    pushint 64
+    extract_uint64
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // smart_contracts/eurance/contract.py:197
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/eurance/contract.py:197-201
+    // itxn.AssetTransfer(
+    //     xfer_asset=Asset(task.asa_id.native),
+    //     asset_receiver=task.freelancer.native,
+    //     asset_amount=task.amount.native,
+    // ).submit()
+    itxn_submit
+    // smart_contracts/eurance/contract.py:203-204
+    // task.status = arc4.UInt8(2)  # RELEASED
+    // self.tasks[task_id.native] = task.copy()
+    pushint 80
+    // smart_contracts/eurance/contract.py:203
+    // task.status = arc4.UInt8(2)  # RELEASED
+    pushbytes 0x02
+    // smart_contracts/eurance/contract.py:203-204
+    // task.status = arc4.UInt8(2)  # RELEASED
+    // self.tasks[task_id.native] = task.copy()
+    box_replace // on error: index out of bounds
+    // smart_contracts/eurance/contract.py:184
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.dispute_task[routing]() -> void:
+dispute_task:
+    // smart_contracts/eurance/contract.py:206
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/eurance/contract.py:212
+    // assert task_id.native in self.tasks, "Task not found"
+    btoi
+    itob
+    bytec_0 // 0x745f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Task not found
+    // smart_contracts/eurance/contract.py:213
+    // task = self.tasks[task_id.native].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/eurance/contract.py:215
+    // is_active = task.status == arc4.UInt8(0)
+    dup
+    extract 80 1
+    dup
+    bytec_1 // 0x00
+    b==
+    // smart_contracts/eurance/contract.py:216
+    // is_complete = task.status == arc4.UInt8(1)
+    swap
+    bytec 6 // 0x01
+    b==
+    // smart_contracts/eurance/contract.py:217
+    // assert is_active or is_complete, "Task must be ACTIVE or COMPLETE to dispute"
+    ||
+    assert // Task must be ACTIVE or COMPLETE to dispute
+    // smart_contracts/eurance/contract.py:219
+    // sender_addr = arc4.Address(Txn.sender)
+    txn Sender
+    // smart_contracts/eurance/contract.py:220
+    // is_client = sender_addr == task.client
+    dig 1
+    extract 0 32
+    dig 1
+    ==
+    // smart_contracts/eurance/contract.py:221
+    // is_freelancer = sender_addr == task.freelancer
+    uncover 2
+    extract 32 32
+    uncover 2
+    ==
+    // smart_contracts/eurance/contract.py:222
+    // assert is_client or is_freelancer, "Only task parties can raise a dispute"
+    ||
+    assert // Only task parties can raise a dispute
+    // smart_contracts/eurance/contract.py:224-225
+    // task.status = arc4.UInt8(4)  # DISPUTED
+    // self.tasks[task_id.native] = task.copy()
+    pushint 80
+    // smart_contracts/eurance/contract.py:224
+    // task.status = arc4.UInt8(4)  # DISPUTED
+    pushbytes 0x04
+    // smart_contracts/eurance/contract.py:224-225
+    // task.status = arc4.UInt8(4)  # DISPUTED
+    // self.tasks[task_id.native] = task.copy()
+    box_replace // on error: index out of bounds
+    // smart_contracts/eurance/contract.py:206
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.admin_resolve[routing]() -> void:
+admin_resolve:
+    // smart_contracts/eurance/contract.py:227
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/eurance/contract.py:238
+    // self._only_admin()
+    callsub _only_admin
+    // smart_contracts/eurance/contract.py:240
+    // assert task_id.native in self.tasks, "Task not found"
+    swap
+    btoi
+    itob
+    bytec_0 // 0x745f
+    swap
+    concat
+    dup
+    cover 2
+    dup
+    box_len
+    bury 1
+    assert // Task not found
+    // smart_contracts/eurance/contract.py:241
+    // task = self.tasks[task_id.native].copy()
+    box_get
+    pop
+    dup
+    cover 2
+    // smart_contracts/eurance/contract.py:243
+    // assert task.status == arc4.UInt8(4), "Task must be DISPUTED"
+    extract 80 1
+    pushbytes 0x04
+    b==
+    assert // Task must be DISPUTED
+    // smart_contracts/eurance/contract.py:245
+    // if release_to_freelancer.native:
+    intc_1 // 0
+    getbit
+    bz admin_resolve_else_body@4
+    // smart_contracts/eurance/contract.py:246-250
+    // itxn.AssetTransfer(
+    //     xfer_asset=Asset(task.asa_id.native),
+    //     asset_receiver=task.freelancer.native,
+    //     asset_amount=task.amount.native,
+    // ).submit()
+    itxn_begin
+    // smart_contracts/eurance/contract.py:247
+    // xfer_asset=Asset(task.asa_id.native),
+    dup
+    pushint 72
+    extract_uint64
+    // smart_contracts/eurance/contract.py:248
+    // asset_receiver=task.freelancer.native,
+    dig 1
+    extract 32 32
+    // smart_contracts/eurance/contract.py:249
+    // asset_amount=task.amount.native,
+    dig 2
+    pushint 64
+    extract_uint64
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // smart_contracts/eurance/contract.py:246
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/eurance/contract.py:246-250
+    // itxn.AssetTransfer(
+    //     xfer_asset=Asset(task.asa_id.native),
+    //     asset_receiver=task.freelancer.native,
+    //     asset_amount=task.amount.native,
+    // ).submit()
+    itxn_submit
+    // smart_contracts/eurance/contract.py:251
+    // task.status = arc4.UInt8(2)  # RELEASED
+    pushbytes 0x02
+    replace2 80
+
+admin_resolve_after_if_else@6:
+    // smart_contracts/eurance/contract.py:260
+    // self.tasks[task_id.native] = task.copy()
+    dig 1
+    swap
+    box_put
+    // smart_contracts/eurance/contract.py:227
+    // @abimethod
+    intc_0 // 1
+    return
+
+admin_resolve_else_body@4:
+    // smart_contracts/eurance/contract.py:253-257
+    // itxn.AssetTransfer(
+    //     xfer_asset=Asset(task.asa_id.native),
+    //     asset_receiver=task.client.native,
+    //     asset_amount=task.amount.native,
+    // ).submit()
+    itxn_begin
+    // smart_contracts/eurance/contract.py:254
+    // xfer_asset=Asset(task.asa_id.native),
+    dup
+    pushint 72
+    extract_uint64
+    // smart_contracts/eurance/contract.py:255
+    // asset_receiver=task.client.native,
+    dig 1
+    extract 0 32
+    // smart_contracts/eurance/contract.py:256
+    // asset_amount=task.amount.native,
+    dig 2
+    pushint 64
+    extract_uint64
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // smart_contracts/eurance/contract.py:253
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/eurance/contract.py:253-257
+    // itxn.AssetTransfer(
+    //     xfer_asset=Asset(task.asa_id.native),
+    //     asset_receiver=task.client.native,
+    //     asset_amount=task.amount.native,
+    // ).submit()
+    itxn_submit
+    // smart_contracts/eurance/contract.py:258
+    // task.status = arc4.UInt8(3)  # REFUNDED
+    pushbytes 0x03
+    replace2 80
+    b admin_resolve_after_if_else@6
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.admin_refund[routing]() -> void:
+admin_refund:
+    // smart_contracts/eurance/contract.py:262
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/eurance/contract.py:268
+    // self._only_admin()
+    callsub _only_admin
+    // smart_contracts/eurance/contract.py:270
+    // assert task_id.native in self.tasks, "Task not found"
+    btoi
+    itob
+    bytec_0 // 0x745f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Task not found
+    // smart_contracts/eurance/contract.py:271
+    // task = self.tasks[task_id.native].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/eurance/contract.py:273
+    // assert task.status == arc4.UInt8(0), "Only ACTIVE tasks can be admin-refunded"
+    dup
+    extract 80 1
+    bytec_1 // 0x00
+    b==
+    assert // Only ACTIVE tasks can be admin-refunded
+    // smart_contracts/eurance/contract.py:275-279
+    // itxn.AssetTransfer(
+    //     xfer_asset=Asset(task.asa_id.native),
+    //     asset_receiver=task.client.native,
+    //     asset_amount=task.amount.native,
+    // ).submit()
+    itxn_begin
+    // smart_contracts/eurance/contract.py:276
+    // xfer_asset=Asset(task.asa_id.native),
+    dup
+    pushint 72
+    extract_uint64
+    // smart_contracts/eurance/contract.py:277
+    // asset_receiver=task.client.native,
+    dig 1
+    extract 0 32
+    // smart_contracts/eurance/contract.py:278
+    // asset_amount=task.amount.native,
+    uncover 2
+    pushint 64
+    extract_uint64
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // smart_contracts/eurance/contract.py:275
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/eurance/contract.py:275-279
+    // itxn.AssetTransfer(
+    //     xfer_asset=Asset(task.asa_id.native),
+    //     asset_receiver=task.client.native,
+    //     asset_amount=task.amount.native,
+    // ).submit()
+    itxn_submit
+    // smart_contracts/eurance/contract.py:281-282
+    // task.status = arc4.UInt8(3)  # REFUNDED
+    // self.tasks[task_id.native] = task.copy()
+    pushint 80
+    // smart_contracts/eurance/contract.py:281
+    // task.status = arc4.UInt8(3)  # REFUNDED
+    pushbytes 0x03
+    // smart_contracts/eurance/contract.py:281-282
+    // task.status = arc4.UInt8(3)  # REFUNDED
+    // self.tasks[task_id.native] = task.copy()
+    box_replace // on error: index out of bounds
+    // smart_contracts/eurance/contract.py:262
+    // @abimethod
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.get_task[routing]() -> void:
+get_task:
+    // smart_contracts/eurance/contract.py:288
+    // @abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/eurance/contract.py:291
+    // assert task_id.native in self.tasks, "Task not found"
+    btoi
+    itob
+    bytec_0 // 0x745f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Task not found
+    // smart_contracts/eurance/contract.py:292
+    // return self.tasks[task_id.native].copy()
+    box_get
+    pop
+    // smart_contracts/eurance/contract.py:288
+    // @abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow.get_task_count[routing]() -> void:
+get_task_count:
+    // smart_contracts/eurance/contract.py:297
+    // return arc4.UInt64(self.task_counter.value)
+    intc_1 // 0
+    bytec_2 // "task_counter"
+    app_global_get_ex
+    assert // check self.task_counter exists
+    itob
+    // smart_contracts/eurance/contract.py:294
+    // @abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts.eurance.contract.EuranceEscrow._only_admin() -> void:
+_only_admin:
+    // smart_contracts/eurance/contract.py:305
+    // assert arc4.Address(Txn.sender) == self.admin.value, "Admin only"
+    txn Sender
+    intc_1 // 0
+    bytec 4 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // Admin only
+    retsub
