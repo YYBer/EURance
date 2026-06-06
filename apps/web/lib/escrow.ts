@@ -8,7 +8,7 @@ export async function buildLockTxn(
   senderAddress: string
 ) {
   const suggestedParams = await algodClient.getTransactionParams().do();
-  const microAmount = Math.round(amountEURD * 100);
+  const microAmount = Math.round(amountEURD * 1_000_000); // USDC testnet: 6 decimals
   const note = new TextEncoder().encode(
     JSON.stringify({ taskId, action: "lock" })
   );

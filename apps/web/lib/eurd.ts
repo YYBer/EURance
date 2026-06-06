@@ -15,7 +15,7 @@ export async function getEURDBalance(address: string): Promise<number> {
     const holding = info.assets?.find(
       (a) => Number(a.assetId) === EURD_ASSET_ID
     );
-    return holding ? Number(holding.amount) / 100 : 0;
+    return holding ? Number(holding.amount) / 1_000_000 : 0; // USDC testnet: 6 decimals
   } catch {
     return 0;
   }
