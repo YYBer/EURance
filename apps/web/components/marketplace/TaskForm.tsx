@@ -57,6 +57,7 @@ export function TaskForm({ onSuccess }: { onSuccess?: () => void }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        taskId,
         prompt: prompt.trim(),
         agentType,
         budget: budgetNum,
@@ -66,6 +67,10 @@ export function TaskForm({ onSuccess }: { onSuccess?: () => void }) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Task creation failed");
+
+    // Sync optimistic task with server response (IDs should now match)
+    updateTask(taskId, data);
+    pollTask(taskId);
   }
 
   async function handleSubmitMock() {

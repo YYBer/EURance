@@ -6,6 +6,7 @@ import { indexerClient } from "@/lib/algorand";
 import { Task } from "@/lib/store";
 
 const CreateTaskSchema = z.object({
+  taskId: z.string().optional(),
   prompt: z.string().min(1).max(1000),
   agentType: z.enum(["DESIGNER", "TRANSLATOR", "CODER"]),
   budget: z.number().min(0.01).max(100),
@@ -27,8 +28,9 @@ async function verifyLockTxn(txId: string, walletAddress: string): Promise<boole
 
 export async function POST(req: NextRequest) {
   try {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${req.nextUrl.protocol}//${req.nextUrl.host}`;
     const body = await req.json();
-    const { prompt, agentType, budget, walletAddress, lockTxId } =
+    const { taskId, prompt, agentType, budget, walletAddress, lockTxId } =
       CreateTaskSchema.parse(body);
 
     const valid = await verifyLockTxn(lockTxId, walletAddress);
@@ -40,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     const task: Task = {
-      id: nanoid(),
+      id: taskId || nanoid(),
       prompt,
       agentType,
       budget,
@@ -52,7 +54,7 @@ export async function POST(req: NextRequest) {
     await kv.hset(`tasks:${walletAddress}`, { [task.id]: JSON.stringify(task) });
     await kv.set(`task:${task.id}`, JSON.stringify(task));
 
-    fetch(`${process.env.NEXT_PUBLIC_APP_URL || ""}/api/ai/trigger`, {
+    fetch(`${appUrl}/api/ai/trigger`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ task }),

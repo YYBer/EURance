@@ -29,13 +29,14 @@ const MOCK_RESULTS: Record<AgentType, { result: string; resultType: "image" | "t
 
 export async function POST(req: NextRequest) {
   try {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${req.nextUrl.protocol}//${req.nextUrl.host}`;
     const body = await req.json();
     const { prompt, agentType, budget } = MockTaskSchema.parse(body);
 
     const taskId = nanoid();
     const mockTxId = `MOCK-${nanoid().toUpperCase()}`;
 
-    if (process.env.FEATHERLESS_API_KEY) {
+    if (process.env.FEATHERLESS_API) {
       const task: Task = {
         id: taskId,
         prompt,
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
         await kv.set(`task:${taskId}`, JSON.stringify(task));
       } catch {}
 
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || ""}/api/ai/trigger`, {
+      fetch(`${appUrl}/api/ai/trigger`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ task }),

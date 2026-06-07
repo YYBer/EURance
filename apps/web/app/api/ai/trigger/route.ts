@@ -10,7 +10,7 @@ const MODEL = "deepseek-ai/DeepSeek-V3-0324";
 function getClient() {
   return new OpenAI({
     baseURL: "https://api.featherless.ai/v1",
-    apiKey: process.env.FEATHERLESS_API_KEY,
+    apiKey: process.env.FEATHERLESS_API,
   });
 }
 
