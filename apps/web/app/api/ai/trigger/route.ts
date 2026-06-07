@@ -5,30 +5,38 @@ import { Task, AgentType } from "@/lib/store";
 
 export const maxDuration = 60;
 
-function getOpenAI() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const MODEL = "deepseek-ai/DeepSeek-V3-0324";
+
+function getClient() {
+  return new OpenAI({
+    baseURL: "https://api.featherless.ai/v1",
+    apiKey: process.env.FEATHERLESS_API_KEY,
+  });
 }
 
 async function runAgent(
   agentType: AgentType,
   prompt: string
 ): Promise<{ result: string; resultType: "image" | "text" }> {
-  const openai = getOpenAI();
+  const client = getClient();
   switch (agentType) {
     case "DESIGNER": {
-      const res = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: `Professional design for: ${prompt}`,
-        size: "1024x1024",
-        quality: "standard",
-        n: 1,
+      const res = await client.chat.completions.create({
+        model: MODEL,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a professional visual designer. When given a design brief, produce a detailed design specification including layout, color palette, typography, and component structure. Be specific and actionable.",
+          },
+          { role: "user", content: prompt },
+        ],
       });
-      const url = res.data?.[0]?.url;
-      return { result: url ?? "Image generation failed", resultType: "image" as const };
+      return { result: res.choices[0].message.content || "", resultType: "text" };
     }
     case "TRANSLATOR": {
-      const res = await getOpenAI().chat.completions.create({
-        model: "gpt-4o",
+      const res = await client.chat.completions.create({
+        model: MODEL,
         messages: [
           {
             role: "system",
@@ -38,14 +46,11 @@ async function runAgent(
           { role: "user", content: prompt },
         ],
       });
-      return {
-        result: res.choices[0].message.content || "",
-        resultType: "text",
-      };
+      return { result: res.choices[0].message.content || "", resultType: "text" };
     }
     case "CODER": {
-      const res = await getOpenAI().chat.completions.create({
-        model: "gpt-4o",
+      const res = await client.chat.completions.create({
+        model: MODEL,
         messages: [
           {
             role: "system",
@@ -55,10 +60,7 @@ async function runAgent(
           { role: "user", content: prompt },
         ],
       });
-      return {
-        result: res.choices[0].message.content || "",
-        resultType: "text",
-      };
+      return { result: res.choices[0].message.content || "", resultType: "text" };
     }
   }
 }

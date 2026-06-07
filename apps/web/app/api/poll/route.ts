@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
         const raw = await kv.get(`task:${note.taskId}`);
         if (!raw) continue;
-        const task = JSON.parse(raw as string) as Task;
+        const task = (typeof raw === "string" ? JSON.parse(raw) : raw) as Task;
 
         if (task.status !== "LOCKED") continue;
 

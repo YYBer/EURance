@@ -8,7 +8,7 @@ import { Task } from "@/lib/store";
 const CreateTaskSchema = z.object({
   prompt: z.string().min(1).max(1000),
   agentType: z.enum(["DESIGNER", "TRANSLATOR", "CODER"]),
-  budget: z.number().min(1).max(100),
+  budget: z.number().min(0.01).max(100),
   walletAddress: z.string().length(58),
   lockTxId: z.string(),
 });
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
     const raw = await kv.hgetall(`tasks:${wallet}`);
     if (!raw) return NextResponse.json([]);
     const tasks = Object.values(raw)
-      .map((v) => JSON.parse(v as string) as Task)
+      .map((v) => (typeof v === "string" ? JSON.parse(v) : v) as Task)
       .sort((a, b) => b.createdAt - a.createdAt);
     return NextResponse.json(tasks);
   } catch {

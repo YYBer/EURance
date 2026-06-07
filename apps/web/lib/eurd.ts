@@ -5,20 +5,32 @@ export const EURD_ASSET_ID = parseInt(
   process.env.NEXT_PUBLIC_EURD_ASSET_ID || "0"
 );
 
-export const MOCK_ESCROW_ADDRESS =
-  process.env.NEXT_PUBLIC_MOCK_ESCROW_ADDRESS || "";
+export const USDC_ASSET_ID = parseInt(
+  process.env.NEXT_PUBLIC_USDC_ASSET_ID || "0"
+);
 
-export async function getEURDBalance(address: string): Promise<number> {
-  if (!address || !EURD_ASSET_ID) return 0;
+export const MOCK_ESCROW_ADDRESS =
+  process.env.NEXT_PUBLIC_ESCROW_ADDRESS || "";
+
+async function fetchBalanceViaApi(address: string, token: "USDC" | "EURD"): Promise<number> {
   try {
-    const info = await algodClient.accountInformation(address).do();
-    const holding = info.assets?.find(
-      (a) => Number(a.assetId) === EURD_ASSET_ID
-    );
-    return holding ? Number(holding.amount) / 1_000_000 : 0; // USDC testnet: 6 decimals
+    const res = await fetch(`/api/balance?address=${address}&token=${token}`);
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data.balance ?? 0;
   } catch {
     return 0;
   }
+}
+
+export async function getEURDBalance(address: string): Promise<number> {
+  if (!address) return 0;
+  return fetchBalanceViaApi(address, "EURD");
+}
+
+export async function getUSDCBalance(address: string): Promise<number> {
+  if (!address) return 0;
+  return fetchBalanceViaApi(address, "USDC");
 }
 
 export async function buildOptInTxn(address: string) {

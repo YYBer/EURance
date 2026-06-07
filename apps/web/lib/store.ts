@@ -18,6 +18,7 @@ export interface Task {
   txId?: string;
   aiResult?: string;
   aiResultType?: "image" | "text";
+  isMock?: boolean;
   createdAt: number;
 }
 

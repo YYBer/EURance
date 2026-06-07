@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
 import { Navbar } from "@/components/shared/Navbar";
+import { ModeHydration } from "@/components/shared/ModeHydration";
 import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
@@ -33,6 +34,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-zinc-950 text-white">
         <WalletProvider>
+          <ModeHydration />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Toaster

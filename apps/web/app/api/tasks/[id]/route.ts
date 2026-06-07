@@ -12,7 +12,7 @@ export async function GET(
     if (!raw) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
-    const task = JSON.parse(raw as string) as Task;
+    const task = (typeof raw === "string" ? JSON.parse(raw) : raw) as Task;
     return NextResponse.json(task);
   } catch {
     return NextResponse.json({ error: "Error fetching task" }, { status: 500 });

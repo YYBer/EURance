@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Wallet } from "lucide-react";
 
 function truncate(addr: string) {
@@ -19,6 +19,18 @@ export function ConnectButton() {
   const { activeAddress, activeWallet } = useWallet();
   const { wallets } = useWallet();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <Button className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold" disabled>
+        <Wallet className="mr-2 h-4 w-4" />
+        Connect Wallet
+      </Button>
+    );
+  }
 
   if (activeAddress && activeWallet) {
     return (
